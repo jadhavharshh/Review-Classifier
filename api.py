@@ -162,32 +162,67 @@ def bulk_prediction(predictor, scaler, cv, data):
     return predictions_csv, graph
 
 def get_distribution_graph(data):
-    fig = plt.figure(figsize=(5, 5))
-    colors = ("green", "red")
-    wp = {"linewidth": 1, "edgecolor": "black"}
+    # Create a figure with two subplots - increase size for better visibility
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 7))
+    
+    # Get value counts
     tags = data["Predicted sentiment"].value_counts()
-    explode = (0.01, 0.01)
+    
+    # Define better colors for positive and negative
+    colors = ("#2ecc71", "#e74c3c")  # Green for positive, red for negative
+    
+    # Pie chart settings
+    wp = {"linewidth": 1.5, "edgecolor": "white"}
+    explode = (0.05, 0.05)
 
+    # Create pie chart in first subplot
     tags.plot(
         kind="pie",
         autopct="%1.1f%%",
-        shadow=True,
+        shadow=False,  # Remove shadow for cleaner look
         colors=colors,
         startangle=90,
         wedgeprops=wp,
         explode=explode,
         title="Sentiment Distribution",
-        xlabel="",
-        ylabel="",
+        ax=ax1,
+        textprops={'fontsize': 12, 'fontweight': 'bold'}
     )
-
+    ax1.set_ylabel("")
+    ax1.set_title("Sentiment Distribution (%)", fontsize=14, fontweight='bold')
+    
+    # Create bar chart in second subplot
+    bars = tags.plot(
+        kind="bar",
+        color=colors,
+        ax=ax2,
+        width=0.7,
+        edgecolor='black'
+    )
+    ax2.set_xlabel("Sentiment", fontsize=12)
+    ax2.set_ylabel("Count", fontsize=12)
+    ax2.set_title("Sentiment Counts", fontsize=14, fontweight='bold')
+    
+    # Add count labels on top of bars with improved formatting
+    for i, v in enumerate(tags):
+        ax2.text(i, v + 0.5, str(v), ha='center', fontweight='bold', fontsize=12)
+    
+    # Improve grid lines on bar chart
+    ax2.grid(axis='y', linestyle='--', alpha=0.7)
+    
+    # Tight layout with more padding
+    plt.tight_layout(pad=3.0)
+    
+    # Add a title for the whole figure
+    fig.suptitle("Sentiment Analysis Results", fontsize=16, fontweight='bold', y=1.05)
+    
+    # Save figure to BytesIO object with higher DPI for better quality
     graph = BytesIO()
-    plt.savefig(graph, format="png")
+    plt.savefig(graph, format="png", dpi=150, bbox_inches='tight')
     plt.close()
-
+    
     return graph
-
-
+    
 def sentiment_mapping(x):
     if x == 1:
         return "Positive"

@@ -116,10 +116,35 @@
 
               </div>
             </div>
+            <!-- Find the graphContainer div section and replace it with this: -->
             <div class="pt-6">
-              <h1 class="text-4xl underline underline-offset-8  ">graph Result</h1>
-              <div class="p-4 m-2 border  ">
-                <div id="graphContainer"></div>
+              <h1 class="text-4xl underline underline-offset-8">Graph Result</h1>
+              <div class="p-4 m-2 border">
+                <div id="graphContainer" class="w-full flex flex-col justify-center items-center">
+                  <!-- Graph will be placed here -->
+                </div>
+                <button id="enlargeGraphBtn" style="display:none" class="mt-3 text-md font-semibold
+      bg-blue-600 text-white rounded-lg px-4 py-2 shadow-md hover:bg-blue-700">
+                  <i class="fas fa-search-plus mr-2"></i>View Enlarged Graph
+                </button>
+              </div>
+            </div>
+
+            <!-- Modal for enlarged graph -->
+            <!-- Update the modal markup -->
+            <div id="graphModal"
+              class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+              <div class="bg-white rounded-lg p-6 max-w-3xl w-11/12 relative">
+                <!-- Update the closeModalBtn styling -->
+                <button id="closeModalBtn"
+                  class="absolute top-3 right-3 text-gray-700 hover:text-red-600 transition-colors"
+                  style="position: absolute; right: 15px; top: 15px; z-index: 20;">
+                  <i class="fas fa-times-circle text-2xl"></i>
+                </button>
+                <h2 class="text-2xl font-bold mb-4 pr-8">Sentiment Analysis Results</h2>
+                <div id="enlargedGraphContainer" class="flex justify-center items-center pb-2">
+                  <!-- Enlarged graph will be placed here -->
+                </div>
               </div>
             </div>
             <button id="downloadBtn" style="display:none" onclick="downloadPredictions()" class="mt-3 text-lg font-semibold
@@ -226,12 +251,51 @@
     console.log("Download prediction")
   }
 
+  // Update the displayGraph function
   function displayGraph(graphData) {
     predictionResult.innerHTML = "";
     var graphUrl = "data:image/png;base64," + graphData;
+
+    // Create image for the main container (smaller version)
     var img = document.createElement('img');
     img.src = graphUrl;
+    img.className = "w-full max-w-md h-auto";
+    img.style.maxHeight = "300px";
+
+    // Clear previous graphs
+    graphContainer.innerHTML = "";
     graphContainer.appendChild(img);
+
+    // Show the enlarge button
+    var enlargeBtn = document.getElementById("enlargeGraphBtn");
+    enlargeBtn.style.display = "block";
+
+    // Create image for the modal (enlarged version)
+    var enlargedImg = document.createElement('img');
+    enlargedImg.src = graphUrl;
+    enlargedImg.className = "max-w-full h-auto";
+    enlargedImg.style.maxHeight = "70vh"; // Limit height to 70% of viewport height
+
+    // Setup the enlarged image container
+    var enlargedGraphContainer = document.getElementById("enlargedGraphContainer");
+    enlargedGraphContainer.innerHTML = "";
+    enlargedGraphContainer.appendChild(enlargedImg);
+
+    // Setup button events
+    enlargeBtn.onclick = function () {
+      document.getElementById("graphModal").classList.remove("hidden");
+    };
+
+    document.getElementById("closeModalBtn").onclick = function () {
+      document.getElementById("graphModal").classList.add("hidden");
+    };
+
+    // Also close when clicking outside the modal content
+    document.getElementById("graphModal").onclick = function (event) {
+      if (event.target === document.getElementById("graphModal")) {
+        document.getElementById("graphModal").classList.add("hidden");
+      }
+    };
   }
 </script>
 
